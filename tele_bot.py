@@ -1,5 +1,5 @@
-# coding=utf-8
 from telegram.ext import Updater
+import os
 
 token = os.environ['find-a-flat-token']
 
