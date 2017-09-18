@@ -1,16 +1,20 @@
 # coding=utf-8
 import traceback
+from operator import attrgetter
+
 import tele_bot
 import main_pars
 import mapgenerator
 import time
+
 
 if __name__ == '__main__':
     print('Started')
     _, sender = tele_bot.start_bot()
     while True:
         try:
-            newAds = main_pars.get_new_ads()
+            newAds = list(main_pars.get_new_ads())
+            # newAds.sort(key=timeSorter)
             for ad in newAds:
                 if ad.ubahn_dist > 1500:
                     continue

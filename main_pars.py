@@ -14,11 +14,9 @@ def generate_url(base_url, *args):
 
 
 def get_page():
-    # target_url = 'https://www.avito.ru/sankt-peterburg/kvartiry/sdam/ne_posledniy/na_dlitelnyy_srok?pmax=28500&pmin=0' \
-                 # '&s=104&user=1&metro=155-157-160-165-173-174-176-180-187-188-189-191-194-199-201-202-203-205-206-209' \
-                 # '-210-211-1015-1016-2122-2132&f=550_5704-5705.568_14011b.501_5153b '
-    target_url = 'https://www.avito.ru/sankt-peterburg/kvartiry/sdam/ne_posledniy/na_dlitelnyy_srok?pmax=28500&pmin=0' \
-                 '&s=104&user=1&f=550_5704-5705.568_14011b.501_5153b '
+    target_url = 'https://www.avito.ru/sankt-peterburg/kvartiry/sdam/na_dlitelnyy_srok/2-komnatnye?pmax=30000&pmin=0' \
+                 '&s=101&user=1&metro=156-157-160-161-163-164-165-173-174-176-178-180-184-185-189-191-199-201-202-203' \
+                 '-205-206-210-211-1015-1016-2132&f=501_5152b&i=1 '
     while True:
         try:
             oo = urlopen(target_url)
