@@ -71,6 +71,8 @@ def parse_page(html_str):
             assert isinstance(elem, bs4.element.Tag)
             if u'avito-ads-container' in elem['class']:
                 continue
+            if u'item-popup-content' in elem['class']:
+                continue
             try:
                 ad_id = elem.get('id')[1:]
                 ad_photo_link = get_img_link(elem.find('img', recursive=True))
@@ -78,16 +80,16 @@ def parse_page(html_str):
                 assert isinstance(elem_title, bs4.element.Tag)
                 ad_link = elem_title.find('a').get('href')
                 ad_title = elem_title.find('a').contents[0]
-                ad_price = parse_price(elem.find('div', 'about').contents[0])
+                ad_price = parse_price(elem.find('div', 'about').contents[1])
 
-                ad_location = elem.find('p', 'address fader').text.strip()
+                ad_location = elem.find('p', 'address').text.strip()
                 if 'м' not in ad_location or 'км' not in ad_location:
                     continue
                 ad_metro_dist = get_metro_distance(ad_location)
                 lil_descr_elem = elem.find('div', 'data')
-                ad_time = lil_descr_elem.find('div', 'date c-2').contents[0]
-                ad_time = ad_time.replace('Сегодня', str(date.today().day) + ' сентября')
-                ad_time = ad_time.replace('Вчера', str(date.today().day - 1) + ' сентября')
+                ad_time = lil_descr_elem.find('div', 'js-item-date c-2').contents[0]
+                ad_time = ad_time.replace('Сегодня', str(date.today().day) + ' июня')
+                ad_time = ad_time.replace('Вчера', str(date.today().day - 1) + ' июня')
                 new_ad = Ad(
                     int(ad_id),
                     ad_photo_link,
