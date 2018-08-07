@@ -6,7 +6,7 @@ import requests
 def get_mapimg(loc):
     prep_loc = u'+'.join(loc.split())
 
-    url_templ = u'http://maps.google.com/maps/api/geocode/json?address=СПБ+'
+    url_templ = u'https://maps.google.com/maps/api/geocode/json?address=СПБ+'
     dd = requests.get(url_templ + prep_loc)
     jd = json.loads(dd.content)
     geom_loc = jd['results'][0]['geometry']['location']

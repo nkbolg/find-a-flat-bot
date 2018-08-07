@@ -1,11 +1,11 @@
 # coding=utf-8
 import traceback
-from operator import attrgetter
 
 import tele_bot
 import main_pars
 import mapgenerator
 import time
+
 
 
 if __name__ == '__main__':
@@ -14,7 +14,6 @@ if __name__ == '__main__':
     while True:
         try:
             newAds = list(main_pars.get_new_ads())
-            # newAds.sort(key=timeSorter)
             for ad in newAds:
                 if ad.ubahn_dist > 1500:
                     continue
