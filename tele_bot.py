@@ -1,13 +1,20 @@
 from telegram.ext import Updater
 import os
 
-token = os.environ['find-a-flat-token']
+token = '389447046:AAEDcX4XzsKplBLmgRQO1v2Mjafa8nEzudw'
 
 ch_id = -1001128165084
 
+# os.environ['HTTPS_PROXY'] = 'socks5://127.0.0.1:52820'
+# os.environ['HTTPS_PROXY'] = 'socks5://127.0.0.1:52821'
+proxy = {
+    'proxy_url': 'socks5://127.0.0.1:52820',
+    'read_timeout': 26, 'connect_timeout': 27
+}
+
 
 def start_bot():
-    updater = Updater(token)
+    updater = Updater(token, request_kwargs=proxy)
     updater.start_polling()
 
     def sender(msg):
