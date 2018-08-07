@@ -19,6 +19,7 @@ class Users:
         with open('uid', 'wb') as f:
             pickle.dump(self.uids, f)
 
+
     def __iter__(self):
         return iter(self.uids.items())
 
@@ -32,9 +33,16 @@ class Users:
         del self.uids[update.message.chat_id]
         bot.send_message(chat_id=update.message.chat_id, text="Notifications disabled")
 
+# os.environ['HTTPS_PROXY'] = 'socks5://127.0.0.1:52820'
+# os.environ['HTTPS_PROXY'] = 'socks5://127.0.0.1:52821'
+proxy = {
+    'proxy_url': 'socks5://127.0.0.1:52820',
+    'read_timeout': 26, 'connect_timeout': 27
+}
+
 
 def start_bot():
-    updater = Updater(token)
+    updater = Updater(token, request_kwargs=proxy)
     users = Users()
     start_handler = CommandHandler('start', users.new_user, pass_args=True)
     delete_handler = CommandHandler('stop', users.delete_user)
@@ -48,7 +56,7 @@ def start_bot():
             updater.bot.send_photo(uid, msg, timeout=20)
         else:
             updater.bot.send_message(uid, msg, timeout=20)
-    
+
 
     def signal_handler(sig, frame, stop, users):
         logging.info("Ctrl+C pressed, processing...")
