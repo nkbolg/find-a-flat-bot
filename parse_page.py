@@ -40,7 +40,15 @@ def get_img_link(img_tag):
         return img_tag['src']
 
 
-Ad = namedtuple('Ad', ['id', 'photo', 'title', 'price', 'loc', 'ubahn_dist', 'time', 'link'])
+SimpleAd = namedtuple('Ad', ['id', 'photo', 'title', 'price', 'loc', 'ubahn_dist', 'time', 'link'])
+
+
+class Ad(SimpleAd):
+    def __eq__(self, other):
+        return self.id == other.id
+
+    def __hash__(self):
+        return hash(self.id)
 
 
 def get_metro_distance(ad_location):
@@ -59,7 +67,6 @@ def get_metro_distance(ad_location):
     return distance
 
 
-
 def parse_page(html_str):
     result = set()
     soup = BeautifulSoup(html_str, "html5lib")
@@ -75,12 +82,12 @@ def parse_page(html_str):
                 continue
             try:
                 ad_id = elem.get('id')[1:]
-                ad_photo_link = get_img_link(elem.find('img', recursive=True))
+                ad_photo_link = get_img_link(elem.find('div', class_='item-slider-image'))
                 elem_title = elem.find('h3', 'title item-description-title')
                 assert isinstance(elem_title, bs4.element.Tag)
                 ad_link = elem_title.find('a').get('href')
-                ad_title = elem_title.find('a').contents[0]
-                ad_price = parse_price(elem.find('div', 'about').contents[1])
+                ad_title = elem_title.find('a').contents[1].text
+                ad_price = parse_price(elem.find('div', 'about').contents[2].text)
 
                 ad_location = elem.find('p', 'address').text.strip()
                 if 'м' not in ad_location or 'км' not in ad_location:
@@ -88,8 +95,8 @@ def parse_page(html_str):
                 ad_metro_dist = get_metro_distance(ad_location)
                 lil_descr_elem = elem.find('div', 'data')
                 ad_time = lil_descr_elem.find('div', 'js-item-date c-2').contents[0]
-                ad_time = ad_time.replace('Сегодня', str(date.today().day) + ' июня')
-                ad_time = ad_time.replace('Вчера', str(date.today().day - 1) + ' июня')
+                ad_time = ad_time.replace('Сегодня', str(date.today().day) + ' сентября')
+                ad_time = ad_time.replace('Вчера', str(date.today().day - 1) + ' сентября')
                 new_ad = Ad(
                     int(ad_id),
                     ad_photo_link,

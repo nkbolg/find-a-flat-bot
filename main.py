@@ -7,7 +7,6 @@ import mapgenerator
 import time
 
 
-
 if __name__ == '__main__':
     print('Started')
     _, sender = tele_bot.start_bot()
@@ -15,8 +14,9 @@ if __name__ == '__main__':
         try:
             newAds = list(main_pars.get_new_ads())
             for ad in newAds:
-                if ad.ubahn_dist > 1500:
-                    continue
+                print(ad)
+                # if ad.ubahn_dist > 1500:
+                #     continue
                 msg = '\n'.join([ad.loc, ad.price + ' руб.', ad.link])
                 sender(msg)
                 loc = ' '.join(ad.loc.split(',')[1:])

@@ -14,15 +14,15 @@ def generate_url(base_url, *args):
 
 
 def get_page():
-    target_url = 'https://www.avito.ru/sankt-peterburg/kvartiry/sdam/na_dlitelnyy_srok/2-komnatnye?pmax=30000&pmin=0' \
-                 '&s=101&user=1&metro=156-157-160-161-163-164-165-173-174-176-178-180-184-185-189-191-199-201-202-203' \
-                 '-205-206-210-211-1015-1016-2132&f=501_5152b&i=1 '
+    target_url = 'https://www.avito.ru/sankt-peterburg/kvartiry/sdam/na_dlitelnyy_srok?pmax=40000&pmin=0&user=1&s_trg' \
+                 '=3&metro=181-189&f=550_5702-5703.501_5153b&i=1 '
+    # target_url = 'https://www.avito.ru/sankt-peterburg/kvartiry/sdam/na_dlitelnyy_srok'
     while True:
         try:
             oo = urlopen(target_url)
             break
         except urllib.error.URLError as ex:
-            print(f"Error while urlopen:{ex}")
+            print("Error while urlopen: ", ex)
 
     print(oo.getcode())
     return oo.read()

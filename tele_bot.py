@@ -1,19 +1,55 @@
-from telegram.ext import Updater
+from telegram.ext import Updater, CommandHandler
+import signal
+import pickle
 import os
+import sys
+token = os.environ["FINDAFLATTOKEN"]
+# find-a-flat channel:
+# ch_id = -1001128165084
+uids = set()
+stop = None
+if os.path.exists('uid'):
+    with open('uid', 'rb') as f:
+        uids = pickle.load(f)
 
-token = os.environ['find-a-flat-token']
 
-ch_id = -1001128165084
+def signal_handler(sig, frame):
+    with open('uid', 'wb') as f:
+        pickle.dump(uids, f)
+    if stop:
+        stop()
+    sys.exit(0)
+
+
+signal.signal(signal.SIGINT, signal_handler)
+
+
+def new_user(bot, update):
+    uids.add(update.message.chat_id)
+    bot.send_message(chat_id=update.message.chat_id, text="Hello! Now you'll receive notifications." \
+                                                          "Say /stop to disable")
+
+
+def delete_user(bot, update):
+    uids.remove(update.message.chat_id)
+    bot.send_message(chat_id=update.message.chat_id, text="Notifications disabled")
 
 
 def start_bot():
     updater = Updater(token)
+    start_handler = CommandHandler('start', new_user)
+    delete_handler = CommandHandler('stop', delete_user)
+    updater.dispatcher.add_handler(start_handler)
+    updater.dispatcher.add_handler(delete_handler)
     updater.start_polling()
 
     def sender(msg):
-        if msg.startswith('http'):
-            updater.bot.send_photo(ch_id, msg)
-        else:
-            updater.bot.send_message(ch_id, msg)
-
+        for u in uids:
+            if msg.startswith('http'):
+                print(msg)
+                updater.bot.send_photo(u, msg, timeout=20)
+            else:
+                updater.bot.send_message(u, msg, timeout=20)
+    global stop
+    stop = updater.stop
     return updater.stop, sender
