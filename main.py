@@ -5,10 +5,12 @@ import tele_bot
 import main_pars
 import mapgenerator
 import time
-
+import logging
 
 if __name__ == '__main__':
-    print('Started')
+    logging.getLogger().setLevel(logging.INFO)
+    logging.basicConfig(format='%(levelname)s -- %(asctime)s -- %(message)s')
+    logging.info('Started')
     _, sender = tele_bot.start_bot()
     while True:
         try:

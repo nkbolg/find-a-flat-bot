@@ -90,7 +90,7 @@ def parse_page(html_str):
                 ad_price = parse_price(elem.find('div', 'about').contents[2].text)
 
                 ad_location = elem.find('p', 'address').text.strip()
-                if 'м' not in ad_location or 'км' not in ad_location:
+                if 'м' not in ad_location and 'км' not in ad_location:
                     continue
                 ad_metro_dist = get_metro_distance(ad_location)
                 lil_descr_elem = elem.find('div', 'data')

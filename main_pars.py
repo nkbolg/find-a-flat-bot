@@ -2,6 +2,7 @@
 import os
 import pickle
 import urllib
+import logging
 
 from urllib.request import urlopen
 from parse_page import parse_page
@@ -24,7 +25,7 @@ def get_page():
         except urllib.error.URLError as ex:
             print("Error while urlopen: ", ex)
 
-    print(oo.getcode())
+    logging.info(oo.getcode())
     return oo.read()
 
 
