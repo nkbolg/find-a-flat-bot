@@ -1,7 +1,7 @@
 from telegram.ext import Updater
 import os
 
-token = '389447046:AAEDcX4XzsKplBLmgRQO1v2Mjafa8nEzudw'
+token = ''
 
 ch_id = -1001128165084
 
