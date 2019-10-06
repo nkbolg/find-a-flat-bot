@@ -8,6 +8,8 @@ from urllib.request import urlopen
 from parse_page import parse_page
 from os import path
 
+target_url = None
+
 
 def generate_url(base_url, *args):
     joined_args = '&'.join(args)
@@ -15,9 +17,6 @@ def generate_url(base_url, *args):
 
 
 def get_page():
-    target_url = 'https://www.avito.ru/sankt-peterburg/kvartiry/sdam/na_dlitelnyy_srok?pmax=40000&pmin=0&user=1&s_trg' \
-                 '=3&metro=181-189&f=550_5702-5703.501_5153b&i=1 '
-    # target_url = 'https://www.avito.ru/sankt-peterburg/kvartiry/sdam/na_dlitelnyy_srok'
     while True:
         try:
             oo = urlopen(target_url)

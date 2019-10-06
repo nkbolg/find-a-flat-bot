@@ -24,10 +24,12 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 
-def new_user(bot, update):
+def new_user(bot, update, arg):
     uids.add(update.message.chat_id)
     bot.send_message(chat_id=update.message.chat_id, text="Hello! Now you'll receive notifications." \
                                                           "Say /stop to disable")
+    from main_pars import target_url
+    target_url = arg
 
 
 def delete_user(bot, update):
@@ -37,7 +39,7 @@ def delete_user(bot, update):
 
 def start_bot():
     updater = Updater(token)
-    start_handler = CommandHandler('start', new_user)
+    start_handler = CommandHandler('start', new_user, pass_args=True)
     delete_handler = CommandHandler('stop', delete_user)
     updater.dispatcher.add_handler(start_handler)
     updater.dispatcher.add_handler(delete_handler)
