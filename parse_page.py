@@ -70,47 +70,48 @@ def get_metro_distance(ad_location):
 def parse_page(html_str):
     result = set()
     soup = BeautifulSoup(html_str, "html5lib")
-    for div_class in ['js-catalog_after-ads', 'js-catalog_before-ads']:
-        cont = soup.find('div', div_class)
-        assert isinstance(cont, bs4.element.Tag)
+    cont = soup.find('div', "js-catalog_serp")
+    assert isinstance(cont, bs4.element.Tag)
 
-        for elem in cont.find_all('div', recursive=False):
-            assert isinstance(elem, bs4.element.Tag)
-            if u'avito-ads-container' in elem['class']:
-                continue
-            if u'item-popup-content' in elem['class']:
-                continue
-            try:
-                ad_id = elem.get('id')[1:]
-                ad_photo_link = get_img_link(elem.find('div', class_='item-slider-image'))
-                elem_title = elem.find('h3', 'title item-description-title')
-                assert isinstance(elem_title, bs4.element.Tag)
-                ad_link = elem_title.find('a').get('href')
-                ad_title = elem_title.find('a').contents[1].text
-                ad_price = parse_price(elem.find('div', 'about').contents[2].text)
+    for elem in cont.find_all('div', recursive=False):
+        assert isinstance(elem, bs4.element.Tag)
+        if u'avito-ads-container' in elem['class']:
+            continue
+        if u'item-popup-content' in elem['class']:
+            continue
+        if u'avito-ads-container' in elem['class']:
+            continue
+        try:
+            ad_id = elem.get('id')[1:]
+            ad_photo_link = get_img_link(elem.find('div', class_='item-slider-image'))
+            elem_title = elem.find('h3', 'title item-description-title')
+            assert isinstance(elem_title, bs4.element.Tag)
+            ad_link = elem_title.find('a').get('href')
+            ad_title = elem_title.find('a').contents[1].text
+            ad_price = parse_price(elem.find('div', 'about').contents[2].text)
 
-                ad_location = elem.find('p', 'address').text.strip()
-                if 'м' not in ad_location and 'км' not in ad_location:
-                    continue
-                ad_metro_dist = get_metro_distance(ad_location)
-                lil_descr_elem = elem.find('div', 'data')
-                ad_time = lil_descr_elem.find('div', 'js-item-date c-2').contents[0]
-                ad_time = ad_time.replace('Сегодня', str(date.today().day) + ' сентября')
-                ad_time = ad_time.replace('Вчера', str(date.today().day - 1) + ' сентября')
-                new_ad = Ad(
-                    int(ad_id),
-                    ad_photo_link,
-                    ad_title.strip(),
-                    str(ad_price),
-                    ad_location,
-                    ad_metro_dist,
-                    ad_time.strip(),
-                    avito_url + ad_link
-                )
-                result.add(new_ad)
-            except Exception as ex:
-                traceback.print_exc()
+            ad_location = elem.find('p', 'address').text.strip()
+            if 'м' not in ad_location and 'км' not in ad_location:
                 continue
+            ad_metro_dist = get_metro_distance(ad_location)
+            lil_descr_elem = elem.find('div', 'data')
+            ad_time = lil_descr_elem.find('div', 'js-item-date c-2').contents[0]
+            ad_time = ad_time.replace('Сегодня', str(date.today().day) + ' сентября')
+            ad_time = ad_time.replace('Вчера', str(date.today().day - 1) + ' сентября')
+            new_ad = Ad(
+                int(ad_id),
+                ad_photo_link,
+                ad_title.strip(),
+                str(ad_price),
+                ad_location,
+                ad_metro_dist,
+                ad_time.strip(),
+                avito_url + ad_link
+            )
+            result.add(new_ad)
+        except Exception as ex:
+            traceback.print_exc()
+            continue
     return result
 
 
