@@ -1,22 +1,18 @@
 # coding=utf-8
 import os
 import pickle
-import urllib
 import logging
 
 from urllib.request import urlopen
 from parse_page import parse_page
 from os import path
-
-
-def generate_url(base_url, *args):
-    joined_args = '&'.join(args)
-    return base_url + '?' + joined_args
+from collections import defaultdict
 
 
 def get_page(target_url):
+    logging.debug("GET %s", target_url)
     oo = urlopen(target_url)
-    logging.info(oo.getcode())
+    logging.debug(oo.getcode())
     return oo.read()
 
 
@@ -26,8 +22,8 @@ def get_ads(target_url):
     return parse_res
 
 
-def get_new_ads(target_url):
-    ads = set()
+def get_new_ads(uid, target_url):
+    ads = defaultdict(set)
 
     target_dir = 'scan_results'
     if not path.exists(target_dir):
@@ -41,9 +37,11 @@ def get_new_ads(target_url):
         pass
 
     parse_res = get_ads(target_url)
-    diff = parse_res.difference(ads)
+    logging.debug("Total ads: %i", len(parse_res))
+    diff = parse_res.difference(ads[uid])
+    logging.debug("New ads: %i", len(diff))
     if diff:
-        ads.update(parse_res)
+        ads[uid].update(parse_res)
         with open(dump_file_name, 'wb') as f:
             pickle.dump(ads, f)
     return diff
