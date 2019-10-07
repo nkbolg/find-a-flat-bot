@@ -8,33 +8,25 @@ from urllib.request import urlopen
 from parse_page import parse_page
 from os import path
 
-target_url = None
-
 
 def generate_url(base_url, *args):
     joined_args = '&'.join(args)
     return base_url + '?' + joined_args
 
 
-def get_page():
-    while True:
-        try:
-            oo = urlopen(target_url)
-            break
-        except urllib.error.URLError as ex:
-            print("Error while urlopen: ", ex)
-
+def get_page(target_url):
+    oo = urlopen(target_url)
     logging.info(oo.getcode())
     return oo.read()
 
 
-def get_ads():
-    page_content = get_page()
+def get_ads(target_url):
+    page_content = get_page(target_url)
     parse_res = parse_page(page_content)
     return parse_res
 
 
-def get_new_ads():
+def get_new_ads(target_url):
     ads = set()
 
     target_dir = 'scan_results'
@@ -48,13 +40,12 @@ def get_new_ads():
     except (IOError, EOFError):
         pass
 
-    parse_res = get_ads()
+    parse_res = get_ads(target_url)
     diff = parse_res.difference(ads)
     if diff:
         ads.update(parse_res)
         with open(dump_file_name, 'wb') as f:
             pickle.dump(ads, f)
-
     return diff
 
 

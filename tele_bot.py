@@ -3,55 +3,61 @@ import signal
 import pickle
 import os
 import sys
+import logging
 token = os.environ["FINDAFLATTOKEN"]
-# find-a-flat channel:
-# ch_id = -1001128165084
-uids = set()
-stop = None
-if os.path.exists('uid'):
-    with open('uid', 'rb') as f:
-        uids = pickle.load(f)
 
 
-def signal_handler(sig, frame):
-    with open('uid', 'wb') as f:
-        pickle.dump(uids, f)
-    if stop:
-        stop()
-    sys.exit(0)
+class Users:
+    def __init__(self):
+        self.uids = {}
+        if os.path.exists('uid'):
+            with open('uid', 'rb') as f:
+                self.uids = pickle.load(f)
 
+    def save_uids(self):
+        with open('uid', 'wb') as f:
+            pickle.dump(self.uids, f)
 
-signal.signal(signal.SIGINT, signal_handler)
+    def __iter__(self):
+        return iter(self.uids.items())
 
+    def new_user(self, bot, update, args):
+        logging.info("New user args: %s", args)
+        self.uids[update.message.chat_id] = args[0]
+        bot.send_message(chat_id=update.message.chat_id, text="Hello! Now you'll receive notifications." \
+                                                            "Say /stop to disable")
 
-def new_user(bot, update, arg):
-    uids.add(update.message.chat_id)
-    bot.send_message(chat_id=update.message.chat_id, text="Hello! Now you'll receive notifications." \
-                                                          "Say /stop to disable")
-    from main_pars import target_url
-    target_url = arg
-
-
-def delete_user(bot, update):
-    uids.remove(update.message.chat_id)
-    bot.send_message(chat_id=update.message.chat_id, text="Notifications disabled")
+    def delete_user(self, bot, update):
+        self.uids.remove(update.message.chat_id)
+        bot.send_message(chat_id=update.message.chat_id, text="Notifications disabled")
 
 
 def start_bot():
     updater = Updater(token)
-    start_handler = CommandHandler('start', new_user, pass_args=True)
-    delete_handler = CommandHandler('stop', delete_user)
+    users = Users()
+    start_handler = CommandHandler('start', users.new_user, pass_args=True)
+    delete_handler = CommandHandler('stop', users.delete_user)
     updater.dispatcher.add_handler(start_handler)
     updater.dispatcher.add_handler(delete_handler)
     updater.start_polling()
 
-    def sender(msg):
-        for u in uids:
-            if msg.startswith('http'):
-                print(msg)
-                updater.bot.send_photo(u, msg, timeout=20)
-            else:
-                updater.bot.send_message(u, msg, timeout=20)
-    global stop
-    stop = updater.stop
-    return updater.stop, sender
+    def sender(uid, msg):
+        if msg.startswith('http'):
+            print(msg)
+            updater.bot.send_photo(uid, msg, timeout=20)
+        else:
+            updater.bot.send_message(uid, msg, timeout=20)
+    
+
+    def signal_handler(sig, frame, stop, users):
+        logging.info("Ctrl+C pressed, processing...")
+        users.save_uids()
+        logging.info("uids saved")
+        stop()
+        logging.info("bot stopped")
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, lambda sig, frame: signal_handler(sig, frame, updater.stop, users))
+
+
+    return users, sender

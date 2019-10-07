@@ -7,25 +7,28 @@ import mapgenerator
 import time
 import logging
 
-if __name__ == '__main__':
-    logging.getLogger().setLevel(logging.INFO)
-    logging.basicConfig(format='%(levelname)s -- %(asctime)s -- %(message)s')
+logging.getLogger().setLevel(logging.DEBUG)
+logging.basicConfig(format='%(levelname)s -- %(asctime)s -- %(message)s')
+
+def main():
     logging.info('Started')
-    _, sender = tele_bot.start_bot()
+    users, sender = tele_bot.start_bot()
     while True:
         try:
-            newAds = list(main_pars.get_new_ads())
-            for ad in newAds:
-                print(ad)
-                # if ad.ubahn_dist > 1500:
-                #     continue
-                msg = '\n'.join([ad.loc, ad.price + ' руб.', ad.link])
-                sender(msg)
-                loc = ' '.join(ad.loc.split(',')[1:])
-                sender(mapgenerator.get_mapimg(loc))
+            for uid, target_url in users:
+                newAds = main_pars.get_new_ads(target_url)
+                for ad in newAds:
+                    logging.info(ad)
+                    msg = '\n'.join([ad.loc, ad.price + ' руб.', ad.link])
+                    sender(uid, msg)
+                    loc = ' '.join(ad.loc.split(',')[1:])
+                    sender(uid, mapgenerator.get_mapimg(loc))
         except Exception as ex:
-            print('Error: ', ex)
+            logging.info('Error: %s', ex)
             traceback.print_exc()
             continue
         finally:
             time.sleep(60)
+
+if __name__ == '__main__':
+    main()
