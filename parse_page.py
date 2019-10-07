@@ -1,5 +1,6 @@
 # coding=utf-8
 import traceback
+import logging
 from collections import namedtuple
 from datetime import date
 
@@ -56,11 +57,15 @@ def get_metro_distance(ad_location):
     distance = 0
     for i in range(len(elements)):
         el = elements[i]
+        el = el.replace(',', '.')
         try:
             distance = float(el)
             break
         except ValueError:
             pass
+    if distance == 0:
+        logging.info("Couldn't get metro distance for %s", ad_location)
+        return 0
     i += 1
     if elements[i].startswith(u'км'):
         distance *= 1000
@@ -81,6 +86,8 @@ def parse_page(html_str):
             continue
         if u'avito-ads-container' in elem['class']:
             continue
+        if u'serp-vips' in elem['class']:
+            continue
         try:
             ad_id = elem.get('id')[1:]
             ad_photo_link = get_img_link(elem.find('div', class_='item-slider-image'))
@@ -90,7 +97,7 @@ def parse_page(html_str):
             ad_title = elem_title.find('a').contents[1].text
             ad_price = parse_price(elem.find('div', 'about').contents[2].text)
 
-            ad_location = elem.find('p', 'address').text.strip()
+            ad_location = elem.find('div', 'address').text.strip()
             if 'м' not in ad_location and 'км' not in ad_location:
                 continue
             ad_metro_dist = get_metro_distance(ad_location)
@@ -119,5 +126,5 @@ if __name__ == '__main__':
     with open('page_sample.htm', encoding='utf8') as f:
         dd = f.read()
     for element in parse_page(dd):
-        print(element)
+        logging.info(element)
     pass

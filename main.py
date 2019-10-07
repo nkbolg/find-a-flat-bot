@@ -21,8 +21,8 @@ def main():
                     logging.info(ad)
                     msg = '\n'.join([ad.loc, ad.price + ' руб.', ad.link])
                     sender(uid, msg)
-                    loc = ' '.join(ad.loc.split(',')[1:])
-                    sender(uid, mapgenerator.get_mapimg(loc))
+                    # loc = ' '.join(ad.loc.split(',')[1:])
+                    # sender(uid, mapgenerator.get_mapimg(loc))
         except Exception as ex:
             logging.info('Error: %s', ex)
             traceback.print_exc()

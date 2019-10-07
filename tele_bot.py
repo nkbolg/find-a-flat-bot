@@ -28,7 +28,7 @@ class Users:
                                                             "Say /stop to disable")
 
     def delete_user(self, bot, update):
-        self.uids.remove(update.message.chat_id)
+        del self.uids[update.message.chat_id]
         bot.send_message(chat_id=update.message.chat_id, text="Notifications disabled")
 
 
