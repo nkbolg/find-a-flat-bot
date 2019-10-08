@@ -67,9 +67,13 @@ def get_metro_distance(ad_location):
         logging.info("Couldn't get metro distance for %s", ad_location)
         return 0
     i += 1
-    if elements[i].startswith(u'км'):
-        distance *= 1000
-    return distance
+    try:
+        if elements[i].startswith(u'км'):
+            distance *= 1000
+        return distance
+    except IndexError:
+        logging.error("IndexError: %s", ad_location)
+        raise
 
 
 def parse_page(html_str):

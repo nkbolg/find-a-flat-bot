@@ -13,6 +13,7 @@ class Users:
         if os.path.exists('uid'):
             with open('uid', 'rb') as f:
                 self.uids = pickle.load(f)
+        logging.info("Loaded %s", self.uids)
 
     def save_uids(self):
         with open('uid', 'wb') as f:
