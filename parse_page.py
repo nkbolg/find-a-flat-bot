@@ -55,25 +55,15 @@ class Ad(SimpleAd):
 def get_metro_distance(ad_location):
     elements = ad_location.split(' ')
     distance = 0
+    multiplier = 1
     for i in range(len(elements)):
-        el = elements[i]
-        el = el.replace(',', '.')
-        try:
-            distance = float(el)
-            break
-        except ValueError:
-            pass
-    if distance == 0:
-        logging.info("Couldn't get metro distance for %s", ad_location)
-        return 0
-    i += 1
-    try:
-        if elements[i].startswith(u'км'):
-            distance *= 1000
-        return distance
-    except IndexError:
-        logging.error("IndexError: %s", ad_location)
-        raise
+        if elements[i].strip() in ['м,', 'км,']:
+            if elements[i].startswith('км'):
+                multiplier = 1000
+            distance_str = elements[i-1].replace(',', '.')
+            return float(distance_str) * multiplier
+    logging.info("Couldn't get metro distance for %s", ad_location)
+    return 0
 
 
 def parse_page(html_str):
@@ -84,13 +74,13 @@ def parse_page(html_str):
 
     for elem in cont.find_all('div', recursive=False):
         assert isinstance(elem, bs4.element.Tag)
-        if u'avito-ads-container' in elem['class']:
+        if 'avito-ads-container' in elem['class']:
             continue
-        if u'item-popup-content' in elem['class']:
+        if 'item-popup-content' in elem['class']:
             continue
-        if u'avito-ads-container' in elem['class']:
+        if 'avito-ads-container' in elem['class']:
             continue
-        if u'serp-vips' in elem['class']:
+        if 'serp-vips' in elem['class']:
             continue
         try:
             ad_id = elem.get('id')[1:]

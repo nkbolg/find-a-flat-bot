@@ -4,9 +4,9 @@ import requests
 
 
 def get_mapimg(loc):
-    prep_loc = u'+'.join(loc.split())
+    prep_loc = '+'.join(loc.split())
 
-    url_templ = u'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=СПБ+'
+    url_templ = 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=СПБ+'
     dd = requests.get(url_templ + prep_loc)
     jd = json.loads(dd.content.decode('utf-8'))
     geom_loc = jd['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos']
