@@ -9,6 +9,8 @@ import mapgenerator
 from logging.handlers import RotatingFileHandler
 from os.path import join, exists
 
+from runner_holder import RunnerHolder
+
 def setup_logger():
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
@@ -34,8 +36,11 @@ def setup_logger():
 def main():
     setup_logger()
     logging.info('Started')
+    runner = RunnerHolder()
+    timeout = 60
+
     users, sender = tele_bot.start_bot()
-    while True:
+    while not runner.stop_set:
         try:
             for uid, target_url in users:
                 newAds = main_pars.get_new_ads(uid, target_url)
@@ -46,9 +51,7 @@ def main():
         except Exception as ex:
             logging.info('Error: %s', ex)
             traceback.print_exc()
-            continue
-        finally:
-            time.sleep(60)
+        runner.wait(timeout)
 
 if __name__ == '__main__':
     main()

@@ -4,6 +4,7 @@ import pickle
 import os
 import sys
 import logging
+import atexit
 token = os.environ["FINDAFLATTOKEN"]
 
 
@@ -16,6 +17,7 @@ class Users:
         logging.info("Loaded %s", self.uids)
 
     def save_uids(self):
+        logging.info("Saving uids from atexit: %s", self.uids)
         with open('uid', 'wb') as f:
             pickle.dump(self.uids, f)
 
@@ -36,6 +38,7 @@ class Users:
 def start_bot():
     updater = Updater(token)
     users = Users()
+    atexit.register(users.save_uids)
     start_handler = CommandHandler('start', users.new_user, pass_args=True)
     delete_handler = CommandHandler('stop', users.delete_user)
     updater.dispatcher.add_handler(start_handler)
@@ -50,15 +53,15 @@ def start_bot():
             updater.bot.send_message(uid, msg, timeout=20)
     
 
-    def signal_handler(sig, frame, stop, users):
-        logging.info("Ctrl+C pressed, processing...")
-        users.save_uids()
-        logging.info("uids saved")
-        stop()
-        logging.info("bot stopped")
-        sys.exit(0)
+    # def signal_handler(sig, frame, stop, users):
+    #     logging.info("Ctrl+C pressed, processing...")
+    #     users.save_uids()
+    #     logging.info("uids saved")
+    #     stop()
+    #     logging.info("bot stopped")
+    #     sys.exit(0)
 
-    signal.signal(signal.SIGINT, lambda sig, frame: signal_handler(sig, frame, updater.stop, users))
+    # signal.signal(signal.SIGINT, lambda sig, frame: signal_handler(sig, frame, updater.stop, users))
 
 
     return users, sender
