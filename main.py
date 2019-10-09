@@ -36,19 +36,22 @@ def main():
     logging.info('Started')
     users, sender = tele_bot.start_bot()
     while True:
-        try:
-            for uid, target_url in users:
+        for uid, target_url in users:
+            try:
                 newAds = main_pars.get_new_ads(uid, target_url)
                 for ad in newAds:
                     logging.info(ad)
                     msg = '\n'.join([ad.loc, ad.price + ' руб.', ad.link])
                     sender(uid, msg)
-        except Exception as ex:
-            logging.info('Error: %s', ex)
-            traceback.print_exc()
-            continue
-        finally:
-            time.sleep(60)
+                    loc = ' '.join(ad.loc.split(',')[1:])
+                    try:
+                        sender(uid, mapgenerator.get_mapimg(loc))
+                    except IndexError:
+                        logging.warning("Didn't get geocode results for %s", loc)
+            except Exception as ex:
+                logging.warning('Error: %s', ex)
+                logging.warning(traceback.format_exc())
+        time.sleep(60)
 
 if __name__ == '__main__':
     main()
