@@ -1,39 +1,17 @@
+import logger_setup
+
+import logging
 import traceback
 import time
-import logging
 import os
 import tele_bot
 import main_pars
 import mapgenerator
 
-from logging.handlers import RotatingFileHandler
-from os.path import join, exists
-
-def setup_logger():
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(levelname)s - %(message)s')
-
-    # create console handler and set level to info
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
- 
-    # create error file handler and set level to error
-    target_dir = 'logs'
-    if not exists(target_dir):
-        os.makedirs(target_dir)
-
-    handler = RotatingFileHandler(join(target_dir, "find-a-flat-bot.log"), encoding='utf-8', maxBytes=1024*1024*10, backupCount=5)
-    handler.setLevel(logging.DEBUG)
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+from os.path import join
 
 def main():
-    setup_logger()
-    logging.info('Started')
+    logging.info('Application started')
     users, sender = tele_bot.start_bot()
     while True:
         for uid, target_url in users:
@@ -48,6 +26,8 @@ def main():
                         sender(uid, mapgenerator.get_mapimg(loc))
                     except IndexError:
                         logging.warning("Didn't get geocode results for %s", loc)
+                    except ValueError:
+                        pass
             except Exception as ex:
                 logging.warning('Error: %s', ex)
                 logging.warning(traceback.format_exc())

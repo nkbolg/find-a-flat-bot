@@ -3,9 +3,15 @@ import json
 import requests
 import os
 
-token = os.environ["GEOCODETOKEN"]
+token = None
+try:
+    token = os.environ["GEOCODETOKEN"]
+except KeyError:
+    logging.info("No GEOCODETOKEN environment variable found")
 
 def get_mapimg(loc):
+    if token is None:
+        raise ValueError("No GEOCODETOKEN environment variable found")
     prep_loc = '+'.join(loc.split())
 
     url_templ = 'https://geocode-maps.yandex.ru/1.x/?format=json&apikey='+token+'&geocode=СПБ+'
