@@ -33,12 +33,18 @@ def parse_time(time_str):
 
 def get_img_link(img_tag):
     if not img_tag:
-        return ''
+        return
     assert isinstance(img_tag, bs4.element.Tag)
     if img_tag.has_attr('data-srcpath'):
         return img_tag['data-srcpath']
     elif img_tag.has_attr('src'):
         return img_tag['src']
+    for chld in img_tag.descendants:
+        if isinstance(chld, bs4.element.Tag):
+            res = get_img_link(chld)
+            if res is not None:
+                return res
+
 
 
 SimpleAd = namedtuple('Ad', ['id', 'photo', 'title', 'price', 'loc', 'ubahn_dist', 'time', 'link'])
@@ -85,7 +91,7 @@ def parse_page(html_str):
         try:
             ad_id = elem.get('id')[1:]
             ad_photo_link = get_img_link(elem.find('div', class_='item-slider-image'))
-            elem_title = elem.find('h3', 'title item-description-title')
+            elem_title = elem.find('h3', 'item-description-title')
             assert isinstance(elem_title, bs4.element.Tag)
             ad_link = elem_title.find('a').get('href')
             ad_title = elem_title.find('a').contents[1].text
@@ -97,8 +103,8 @@ def parse_page(html_str):
             ad_metro_dist = get_metro_distance(ad_location)
             lil_descr_elem = elem.find('div', 'data')
             ad_time = lil_descr_elem.find('div', 'js-item-date c-2').contents[0]
-            ad_time = ad_time.replace('Сегодня', str(date.today().day) + ' сентября')
-            ad_time = ad_time.replace('Вчера', str(date.today().day - 1) + ' сентября')
+            ad_time = ad_time.replace('Сегодня', str(date.today().day) + ' ноября')
+            ad_time = ad_time.replace('Вчера', str(date.today().day - 1) + ' ноября')
             new_ad = Ad(
                 int(ad_id),
                 ad_photo_link,

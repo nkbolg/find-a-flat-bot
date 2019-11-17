@@ -1,9 +1,8 @@
-# coding=utf-8
 import os
 import pickle
 import logging
+import requests
 
-from urllib.request import urlopen
 from parse_page import parse_page
 from os import path
 from collections import defaultdict
@@ -11,9 +10,9 @@ from collections import defaultdict
 
 def get_page(target_url):
     logging.debug("GET %s", target_url)
-    oo = urlopen(target_url)
-    logging.debug(oo.getcode())
-    return oo.read()
+    oo = requests.get(target_url)
+    logging.debug(oo.status_code)
+    return oo.text
 
 
 def get_ads(target_url):
