@@ -33,5 +33,6 @@ def main():
                 logging.warning(traceback.format_exc())
         time.sleep(60)
 
+
 if __name__ == '__main__':
     main()
