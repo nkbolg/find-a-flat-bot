@@ -9,6 +9,7 @@ try:
 except KeyError:
     logging.info("No GEOCODETOKEN environment variable found")
 
+
 def get_mapimg(loc):
     if token is None:
         raise ValueError("No GEOCODETOKEN environment variable found")

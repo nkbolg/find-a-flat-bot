@@ -1,23 +1,22 @@
-import logger_setup
-
+from logger_setup import setup_logger
 import logging
 import traceback
 import time
-import os
 import tele_bot
 import main_pars
 import mapgenerator
 
-from os.path import join
 
 def main():
+    setup_logger()
+
     logging.info('Application started')
     users, sender = tele_bot.start_bot()
     while True:
         for uid, target_url in users:
             try:
-                newAds = main_pars.get_new_ads(uid, target_url)
-                for ad in newAds:
+                new_ads = main_pars.get_new_ads(uid, target_url)
+                for ad in new_ads:
                     logging.info(ad)
                     msg = '\n'.join([ad.loc, ad.price, ad.link])
                     sender(uid, msg)
@@ -29,8 +28,8 @@ def main():
                     except ValueError:
                         pass
             except Exception as ex:
-                logging.warning('Error: %s', ex)
-                logging.warning(traceback.format_exc())
+                logging.error('Error: %s', ex)
+                logging.error(traceback.format_exc())
         time.sleep(60)
 
 

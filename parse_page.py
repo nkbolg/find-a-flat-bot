@@ -1,11 +1,9 @@
-# coding=utf-8
 import traceback
 import logging
 from collections import namedtuple
 from datetime import date
 
 import bs4
-from bs4 import BeautifulSoup
 
 avito_url = 'https://www.avito.ru'
 
@@ -35,7 +33,6 @@ def get_img_link(img_tag):
                 return res
 
 
-
 SimpleAd = namedtuple('Ad', ['id', 'photo', 'title', 'price', 'loc', 'ubahn_dist', 'time', 'link'])
 
 
@@ -49,7 +46,6 @@ class Ad(SimpleAd):
 
 def get_metro_distance(ad_location):
     elements = ad_location.split(' ')
-    distance = 0
     multiplier = 1
     for i in range(len(elements)):
         if elements[i].strip() in ['м,', 'км,']:
@@ -57,13 +53,13 @@ def get_metro_distance(ad_location):
                 multiplier = 1000
             distance_str = elements[i-1].replace(',', '.')
             return float(distance_str) * multiplier
-    logging.info("Couldn't get metro distance for %s", ad_location)
+    logging.warning("Couldn't get metro distance for %s", ad_location)
     return 0
 
 
 def parse_page(html_str):
     result = set()
-    soup = BeautifulSoup(html_str, "html5lib")
+    soup = bs4.BeautifulSoup(html_str, "html5lib")
     cont = soup.find('div', "js-catalog_serp")
     assert isinstance(cont, bs4.element.Tag)
 
@@ -88,6 +84,7 @@ def parse_page(html_str):
 
             ad_location = elem.find('div', 'address').text.strip()
             if 'м' not in ad_location and 'км' not in ad_location:
+                logging.warning("Can't parse address: %s', ad_location")
                 continue
             ad_metro_dist = get_metro_distance(ad_location)
             ad_time = elem.find('div', 'snippet-date-info').text.strip()
@@ -104,8 +101,8 @@ def parse_page(html_str):
                 avito_url + ad_link
             )
             result.add(new_ad)
-        except Exception as ex:
-            traceback.print_exc()
+        except Exception:
+            logging.error(traceback.format_exc())
             continue
     return result
 
