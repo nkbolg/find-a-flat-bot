@@ -10,17 +10,6 @@ from bs4 import BeautifulSoup
 avito_url = 'https://www.avito.ru'
 
 
-def parse_price(price_str):
-    price = 0
-    try:
-        for el in price_str.strip().split(' ')[:-1]:
-            iprice = int(el)
-            price *= 1000
-            price += iprice
-    finally:
-        return price
-
-
 def parse_time(time_str):
     tl = time_str.strip().split(' ')
     if len(tl) == 2:
@@ -91,25 +80,24 @@ def parse_page(html_str):
         try:
             ad_id = elem.get('id')[1:]
             ad_photo_link = get_img_link(elem.find('div', class_='item-slider-image'))
-            elem_title = elem.find('h3', 'item-description-title')
+            elem_title = elem.find('h3', 'snippet-title')
             assert isinstance(elem_title, bs4.element.Tag)
             ad_link = elem_title.find('a').get('href')
-            ad_title = elem_title.find('a').contents[1].text
-            ad_price = parse_price(elem.find('div', 'about').contents[2].text)
+            ad_title = str(elem_title.find('a').contents[0])
+            ad_price = elem.find('div', 'snippet-price-row').text.strip()
 
             ad_location = elem.find('div', 'address').text.strip()
             if 'м' not in ad_location and 'км' not in ad_location:
                 continue
             ad_metro_dist = get_metro_distance(ad_location)
-            lil_descr_elem = elem.find('div', 'data')
-            ad_time = lil_descr_elem.find('div', 'js-item-date c-2').contents[0]
-            ad_time = ad_time.replace('Сегодня', str(date.today().day) + ' ноября')
-            ad_time = ad_time.replace('Вчера', str(date.today().day - 1) + ' ноября')
+            ad_time = elem.find('div', 'snippet-date-info').text.strip()
+            ad_time = ad_time.replace('Сегодня', str(date.today().day) + ' марта')
+            ad_time = ad_time.replace('Вчера', str(date.today().day - 1) + ' марта')
             new_ad = Ad(
                 int(ad_id),
                 ad_photo_link,
                 ad_title.strip(),
-                str(ad_price),
+                ad_price,
                 ad_location,
                 ad_metro_dist,
                 ad_time.strip(),

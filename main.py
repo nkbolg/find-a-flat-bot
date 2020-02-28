@@ -19,7 +19,7 @@ def main():
                 newAds = main_pars.get_new_ads(uid, target_url)
                 for ad in newAds:
                     logging.info(ad)
-                    msg = '\n'.join([ad.loc, ad.price + ' руб.', ad.link])
+                    msg = '\n'.join([ad.loc, ad.price, ad.link])
                     sender(uid, msg)
                     loc = ' '.join(ad.loc.split(',')[1:])
                     try:
